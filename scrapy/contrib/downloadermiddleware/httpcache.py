@@ -128,7 +128,11 @@ class FilesystemCacheStorage(object):
         if not exists(metapath):
             return # not found
         mtime = os.stat(rpath).st_mtime
-        if 0 < self.expiration_secs < time() - mtime:
+        try:
+            expiration_secs = request.expiration_secs
+        except AttributeError:
+            expiration_secs = self.expiration_secs
+        if 0 < expiration_secs < time() - mtime:
             return # expired
         with open(metapath, 'rb') as f:
             return pickle.load(f)
